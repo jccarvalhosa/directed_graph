@@ -66,6 +66,8 @@ function selectableForceDirectedGraph() {
     .call(zoomer)
     //.call(brusher)
 
+	var defs = svg.append("svg:defs");
+
     var rect = svg_graph.append('svg:rect')
     .attr('width', width)
     .attr('height', height)
@@ -82,8 +84,7 @@ function selectableForceDirectedGraph() {
 
     var vis = svg_graph.append("svg:g");
 
-    vis.attr('fill', 'red')
-    .attr('stroke', 'black')
+    vis.attr('stroke', 'black')
     .attr('stroke-width', 1)
     .attr('opacity', 0.5)
     .attr('id', 'vis')
@@ -130,6 +131,9 @@ function selectableForceDirectedGraph() {
         mol_width = max_x - min_x;
         mol_height = max_y - min_y;
 
+		console.log(mol_width)
+		console.log(mol_height)
+
         // how much larger the drawing area is than the width and the height
         width_ratio = width / mol_width;
         height_ratio = height / mol_height;
@@ -162,7 +166,6 @@ function selectableForceDirectedGraph() {
         //d3.select(self).classed("dragging", false);
         node.filter(function(d) { return d.selected; })
         .each(function(d) { d.fixed &= ~6; })
-
     }
 
     d3.json("graph.json", function(error, graph) {
@@ -182,11 +185,11 @@ function selectableForceDirectedGraph() {
 
         var force = d3.layout.force()
         .charge(-120)
-        .linkDistance(30)
+        .linkDistance(70)
         .nodes(graph.nodes)
         .links(graph.links)
         .size([width, height])
-        .start();
+		.start();
 
         function dragstarted(d) {
             d3.event.sourceEvent.stopPropagation();
@@ -213,10 +216,27 @@ function selectableForceDirectedGraph() {
 
             force.resume();
         }
+
         node = node.data(graph.nodes).enter().append("circle")
-        .attr("r", 4)
+        .attr("r", function(d) { return d.r; })
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
+		.attr("fill", function(d, index) {
+			var id = "bg_circle_"+index;
+			defs.append("pattern")
+			.attr("id", id)
+			.attr("height", 2*d.r)
+			.attr("width", 2*d.r)
+			.attr("x", 0)
+			.attr("y", 0)
+			.append("svg:image")
+			.attr("x", 0)
+			.attr("y", 0)
+			.attr("height", 2*d.r)
+			.attr("width", 2*d.r)
+			.attr("xlink:href", "img/"+d.bg)
+			return "url(#"+id+")"
+		})
         .on("dblclick", function(d) { d3.event.stopPropagation(); })
         .on("click", function(d) {
             if (d3.event.defaultPrevented) return;
@@ -234,25 +254,23 @@ function selectableForceDirectedGraph() {
             //if (d.selected && shiftKey) d3.select(this).classed("selected", d.selected = false);
         })
         .call(d3.behavior.drag()
-              .on("dragstart", dragstarted)
-              .on("drag", dragged)
-              .on("dragend", dragended));
+            .on("dragstart", dragstarted)
+            .on("drag", dragged)
+            .on("dragend", dragended));
 
-              function tick() {
-                  link.attr("x1", function(d) { return d.source.x; })
-                  .attr("y1", function(d) { return d.source.y; })
-                  .attr("x2", function(d) { return d.target.x; })
-                  .attr("y2", function(d) { return d.target.y; });
+		function tick() {
+			link.attr("x1", function(d) { return d.source.x; })
+				.attr("y1", function(d) { return d.source.y; })
+			  	.attr("x2", function(d) { return d.target.x; })
+			  	.attr("y2", function(d) { return d.target.y; });
 
-                  node.attr('cx', function(d) { return d.x; })
-                  .attr('cy', function(d) { return d.y; });
+			node.attr('cx', function(d) { return d.x; })
+			  	.attr('cy', function(d) { return d.y; });
+		};
 
-              };
-
-              force.on("tick", tick);
-
+		force.on("tick", tick);
+			
     });
-
 
     function keydown() {
         shiftKey = d3.event.shiftKey || d3.event.metaKey;
@@ -292,5 +310,5 @@ function selectableForceDirectedGraph() {
 
         brush.select('.background').style('cursor', 'auto')
         svg_graph.call(zoomer);
-    }
+    }	
 }
