@@ -40,8 +40,6 @@ function selectableForceDirectedGraph() {
     }
 
     var brusher = d3.svg.brush()
-    //.x(d3.scale.identity().domain([0, width]))
-    //.y(d3.scale.identity().domain([0, height]))
     .x(xScale)
     .y(yScale)
     .on("brushstart", function(d) {
@@ -64,19 +62,8 @@ function selectableForceDirectedGraph() {
 
     var svg_graph = svg.append('svg:g')
     .call(zoomer)
-    //.call(brusher)
 
 	var defs = svg.append("svg:defs");
-
-    var rect = svg_graph.append('svg:rect')
-    .attr('width', width)
-    .attr('height', height)
-    .attr('fill', 'transparent')
-    //.attr('opacity', 0.5)
-    .attr('stroke', 'transparent')
-    .attr('stroke-width', 1)
-    //.attr("pointer-events", "all")
-    .attr("id", "zrect")
 
     var brush = svg_graph.append("g")
     .datum(function() { return {selected: false, previouslySelected: false}; })
@@ -104,7 +91,7 @@ function selectableForceDirectedGraph() {
 
     var node = vis.append("g")
     .attr("class", "node")
-    .selectAll("circle");
+    .selectAll("g")
 
     center_view = function() {
         // Center the view on the molecule(s) and scale it so that everything
@@ -131,9 +118,6 @@ function selectableForceDirectedGraph() {
         mol_width = max_x - min_x;
         mol_height = max_y - min_y;
 
-		console.log(mol_width)
-		console.log(mol_height)
-
         // how much larger the drawing area is than the width and the height
         width_ratio = width / mol_width;
         height_ratio = height / mol_height;
@@ -155,10 +139,10 @@ function selectableForceDirectedGraph() {
         vis.attr("transform",
                  "translate(" + [x_trans, y_trans] + ")" + " scale(" + min_ratio + ")");
 
-                 // tell the zoomer what we did so that next we zoom, it uses the
-                 // transformation we entered here
-                 zoomer.translate([x_trans, y_trans ]);
-                 zoomer.scale(min_ratio);
+		 // tell the zoomer what we did so that next we zoom, it uses the
+		 // transformation we entered here
+		 zoomer.translate([x_trans, y_trans ]);
+		 zoomer.scale(min_ratio);
 
     };
 
@@ -177,15 +161,14 @@ function selectableForceDirectedGraph() {
         });
 
         link = link.data(graph.links).enter().append("line")
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
+			.attr("x1", function(d) { return d.source.x; })
+			.attr("y1", function(d) { return d.source.y; })
+			.attr("x2", function(d) { return d.target.x; })
+			.attr("y2", function(d) { return d.target.y; });
 
         var force = d3.layout.force()
-        .charge(-120)
-        .linkDistance(70)
+        .charge(-360)
+        .linkDistance(60)
         .nodes(graph.nodes)
         .links(graph.links)
         .size([width, height])
@@ -216,28 +199,49 @@ function selectableForceDirectedGraph() {
 
             force.resume();
         }
+		
+		var colors = ["green", "blue", "red", "yellow"];
+		var nextColor = 0;
 
-        node = node.data(graph.nodes).enter().append("circle")
+		node = node.data(graph.nodes).enter().append("g");
+
+        node.append("circle")
+		.attr("id", function(d, index) { return "circle_"+index})
         .attr("r", function(d) { return d.r; })
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
 		.attr("fill", function(d, index) {
-			var id = "bg_circle_"+index;
-			defs.append("pattern")
-			.attr("id", id)
-			.attr("height", 2*d.r)
-			.attr("width", 2*d.r)
-			.attr("x", 0)
-			.attr("y", 0)
-			.append("svg:image")
-			.attr("x", 0)
-			.attr("y", 0)
-			.attr("height", 2*d.r)
-			.attr("width", 2*d.r)
-			.attr("xlink:href", "img/"+d.bg)
-			return "url(#"+id+")"
+			if(d.bg) {
+				var id = "bg_circle_"+index;
+				defs.append("pattern")
+				.attr("id", id)
+				.attr("height", 2*d.r)
+				.attr("width", 2*d.r)
+				.attr("x", 0)
+				.attr("y", 0)
+				.append("svg:image")
+				.attr("x", 0)
+				.attr("y", 0)
+				.attr("height", 2*d.r)
+				.attr("width", 2*d.r)
+				.attr("xlink:href", "img/"+d.bg)
+				return "url(#"+id+")"
+			}
+			else {
+				var color = colors[nextColor];
+				nextColor = (nextColor + 1) % colors.length;
+				return color
+			}
 		})
-        .on("dblclick", function(d) { d3.event.stopPropagation(); })
+		
+		node.append("text")
+			.attr("id", function(d, index) { return "info_"+index})
+			.attr("x", function(d) { return d.x})
+			.attr("y", function(d) { return d.y})
+			.attr("stroke-width", function(d) {	return d.r/50; })
+			.attr("stroke", "black")
+		
+		node.on("dblclick", function(d) { d3.event.stopPropagation(); })
         .on("click", function(d) {
             if (d3.event.defaultPrevented) return;
 
@@ -249,7 +253,6 @@ function selectableForceDirectedGraph() {
             // always select this node
             d3.select(this).classed("selected", d.selected = !d.previouslySelected);
         })
-
         .on("mouseup", function(d) {
             //if (d.selected && shiftKey) d3.select(this).classed("selected", d.selected = false);
         })
@@ -257,6 +260,10 @@ function selectableForceDirectedGraph() {
             .on("dragstart", dragstarted)
             .on("drag", dragged)
             .on("dragend", dragended));
+
+
+		info = node.select("text")
+		node = node.select("circle")
 
 		function tick() {
 			link.attr("x1", function(d) { return d.source.x; })
@@ -266,6 +273,20 @@ function selectableForceDirectedGraph() {
 
 			node.attr('cx', function(d) { return d.x; })
 			  	.attr('cy', function(d) { return d.y; });
+			
+			info.attr('x', function(d) { return d.x - d.r; })
+			  	.attr('y', function(d) { return d.y - d.r; });
+
+			nodeGraph.nodes.forEach(function(d, index) {
+				if(d.text) {
+					d3plus.textwrap()
+						.container("#info_"+index)
+						.text(d.text)
+						.resize(true)
+						.valign("middle")
+						.draw()
+				}
+			});
 		};
 
 		force.on("tick", tick);

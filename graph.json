@@ -37,10 +37,10 @@
 	  "bg": "suit.png"
     },
     {  
-      "x":359,
-      "y":276,
-	  "r": 12,
-	  "bg": "spiral.jpeg"
+      "x":659,
+      "y":306,
+	  "r": 18,
+	  "text": "O meu pitaco é sobre uma coisa muito legal"
     }
   ],
   "links":[  
