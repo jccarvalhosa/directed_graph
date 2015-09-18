@@ -167,8 +167,8 @@ function selectableForceDirectedGraph() {
 			.attr("y2", function(d) { return d.target.y; });
 
         var force = d3.layout.force()
-        .charge(-360)
-        .linkDistance(60)
+        .charge(-240)
+        .linkDistance(70)
         .nodes(graph.nodes)
         .links(graph.links)
         .size([width, height])
@@ -289,8 +289,17 @@ function selectableForceDirectedGraph() {
 			});
 		};
 
-		force.on("tick", tick);
-			
+		var tickSpeed = 2.3;
+		var remainingTicks = tickSpeed;
+		force.on("tick", function() {
+			tick();
+			if(remainingTicks < 1) {
+				remainingTicks += tickSpeed;
+			} else {
+				remainingTicks--;
+				force.tick();
+			}
+		});
     });
 
     function keydown() {
