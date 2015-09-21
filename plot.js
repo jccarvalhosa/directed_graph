@@ -146,11 +146,9 @@ function selectableForceDirectedGraph() {
 
     };
 
-    function dragended(d) {
-        //d3.select(self).classed("dragging", false);
-        node.filter(function(d) { return d.selected; })
-        .each(function(d) { d.fixed &= ~6; })
-    }
+	function unselectEverything() {
+		node.classed("selected", function(p) { return p.selected = p.previouslySelected = false; })
+	}
 
     d3.json("graph.json", function(error, graph) {
         nodeGraph = graph;
@@ -168,37 +166,52 @@ function selectableForceDirectedGraph() {
 
         var force = d3.layout.force()
         .charge(-240)
-        .linkDistance(70)
+        .linkDistance(100)
         .nodes(graph.nodes)
         .links(graph.links)
         .size([width, height])
+		.gravity(0.05)
 		.start();
 
-        function dragstarted(d) {
-            d3.event.sourceEvent.stopPropagation();
-            if (!d.selected && !shiftKey) {
-                // if this node isn't selected, then we have to unselect every other node
-                node.classed("selected", function(p) { return p.selected =  p.previouslySelected = false; });
-            }
+		function fixNode(d) { d.fixed |= 2; }
+		function unfixNode(d) { d.fixed &= ~6; }
 
-            d3.select(this).classed("selected", function(p) { d.previouslySelected = d.selected; return d.selected = true; });
+		var leftButtonClick = false;
+		function dragstarted(d) {
+			leftButtonClick = d3.event.sourceEvent.which == 1;
+			d3.event.sourceEvent.stopPropagation();
+			if (!d.selected && !shiftKey) {
+				unselectEverything();
+			}
 
-            node.filter(function(d) { return d.selected; })
-            .each(function(d) { d.fixed |= 2; })
-        }
+			d3.select(this.children[0]).classed("selected", function(p) { d.previouslySelected = d.selected; return d.selected = true; });
 
-        function dragged(d) {
-            node.filter(function(d) { return d.selected; })
-            .each(function(d) { 
-                d.x += d3.event.dx;
-                d.y += d3.event.dy;
+			node.filter(function(d) { return d.selected; }).each(fixNode);
+			node.filter(function(d) { return !d.selected; }).each(unfixNode);
+		}
 
-                d.px += d3.event.dx;
-                d.py += d3.event.dy;
-            })
+		function dragged(d) {
+			if(!leftButtonClick) return;
+			node.filter(function(d) { return d.selected; })
+			.each(function(d) { 
+				d.x += d3.event.dx;
+				d.y += d3.event.dy;
 
-            force.resume();
-        }
+				d.px += d3.event.dx;
+				d.py += d3.event.dy;
+			})
+
+			force.resume();
+		}
+
+		function dragended(d) {
+			node.each(unfixNode);
+		}
+
+		var drag = d3.behavior.drag()
+			.on("dragstart", dragstarted)
+			.on("drag", dragged)
+			.on("dragend", dragended)
 		
 		var colors = ["green", "blue", "red", "yellow"];
 		var nextColor = 0;
@@ -242,24 +255,22 @@ function selectableForceDirectedGraph() {
 			.attr("stroke", "black")
 		
 		node.on("dblclick", function(d) { d3.event.stopPropagation(); })
+		.on("contextmenu", function(d, index) {
+            if (d3.event.defaultPrevented) return;
+			d3.event.preventDefault();
+			alert(d.text);
+		})
         .on("click", function(d) {
             if (d3.event.defaultPrevented) return;
 
             if (!shiftKey) {
-                //if the shift key isn't down, unselect everything
-                node.classed("selected", function(p) { return p.selected =  p.previouslySelected = false; })
+				unselectEverything();
             }
 
             // always select this node
-            d3.select(this).classed("selected", d.selected = !d.previouslySelected);
+            d3.select(this.children[0]).classed("selected", d.selected = !d.previouslySelected);
         })
-        .on("mouseup", function(d) {
-            //if (d.selected && shiftKey) d3.select(this).classed("selected", d.selected = false);
-        })
-        .call(d3.behavior.drag()
-            .on("dragstart", dragstarted)
-            .on("drag", dragged)
-            .on("dragend", dragended));
+        .call(drag);
 
 
 		info = node.select("text")
@@ -307,6 +318,10 @@ function selectableForceDirectedGraph() {
         ctrlKey = d3.event.ctrlKey;
 
         console.log('d3.event', d3.event)
+		
+		if(d3.event.keyCode == 27) {    //the 'ESC' key
+			unselectEverything();
+		}
 
         if (d3.event.keyCode == 67) {   //the 'c' key
             center_view();
