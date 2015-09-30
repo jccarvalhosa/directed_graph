@@ -176,9 +176,7 @@ function selectableForceDirectedGraph() {
 		function fixNode(d) { d.fixed |= 2; }
 		function unfixNode(d) { d.fixed &= ~6; }
 
-		var leftButtonClick = false;
 		function dragstarted(d) {
-			leftButtonClick = d3.event.sourceEvent.which == 1;
 			d3.event.sourceEvent.stopPropagation();
 			if (!d.selected && !shiftKey) {
 				unselectEverything();
@@ -191,7 +189,6 @@ function selectableForceDirectedGraph() {
 		}
 
 		function dragged(d) {
-			if(!leftButtonClick) return;
 			node.filter(function(d) { return d.selected; })
 			.each(function(d) { 
 				d.x += d3.event.dx;
@@ -258,10 +255,13 @@ function selectableForceDirectedGraph() {
 		.on("contextmenu", function(d, index) {
             if (d3.event.defaultPrevented) return;
 			d3.event.preventDefault();
-			alert(d.text);
 		})
         .on("click", function(d) {
             if (d3.event.defaultPrevented) return;
+
+			var modalElement = $('#myModal');
+			modalElement.find('.modal-body').text(d.text || '...');
+			modalElement.modal();
 
             if (!shiftKey) {
 				unselectEverything();

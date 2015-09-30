@@ -1,31 +1,40 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/main.css" rel="stylesheet">
+	</head>
+	<body>
+		
+		
+		<div align='center' id="d3_selectable_force_directed_graph"></div>
 
-.node {
-  stroke: #fff;
-  stroke-width: 1.5px;
-}
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+					</div>
+					<div class="modal-body">
+					...
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary">Save changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-.node .selected {
-  stroke: black;
-}
-
-.link {
-  stroke: #999;
-}
-
-.brush .extent {
-  fill-opacity: .1;
-  stroke: #fff;
-  shape-rendering: crispEdges;
-}
-
-</style>
-<body>
-    <div align='center' id="d3_selectable_force_directed_graph"></div>
-</body>
-<script src="d3.v3.min.js"></script>
-<script src="d3plus.min.js"></script>
-<script src="plot.js"></script>
-<script>selectableForceDirectedGraph();</script>
+		<script src="js/d3.v3.min.js"></script>
+		<script src="js/d3plus.min.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/plot.js"></script>
+		<script>selectableForceDirectedGraph();</script>
+	</body>
+</html>
