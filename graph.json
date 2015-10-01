@@ -1,70 +1,70 @@
-{  
-  "nodes":[  
-    {  
+{
+  "nodes":[
+    {
       "x":444,
       "y":275,
-	  "r": 8,
-	  "bg": "jelly.png"
+	    "r": 16,
+	    "bg": "app_allergio_pequeno.jpeg"
     },
-    {  
+    {
       "x":378,
       "y":324,
-	  "r": 10,
-	  "bg": "yang.png"
+	    "r": 5,
+	    "bg": "cor_cinza.jpg"
     },
-    {  
+    {
       "x":478,
       "y":278,
-	  "r": 14,
-	  "bg": "suit.png"
+	    "r": 5,
+	    "bg": "cor_cinza.jpg"
     },
-    {  
+    {
       "x":471,
       "y":256,
-	  "r": 8,
-	  "bg": "spiral.jpeg"
+	    "r": 5,
+	    "bg": "cor_cinza.jpg"
     },
-    {  
+    {
       "x":382,
       "y":269,
-	  "r": 8,
-	  "bg": "apple.jpeg"
+	    "r": 12,
+	    "bg": "no_gluten.jpg"
     },
-    {  
+    {
       "x":371,
       "y":247,
-	  "r": 6,
-	  "bg": "suit.png"
+	    "r": 12,
+	    "bg": "apps_exemplo.jpg"
     },
-    {  
+    {
       "x":459,
       "y":306,
-	  "r": 18,
-	  "text": "O meu pitaco é sobre uma coisa"
+	    "r": 18,
+	    "text": "O meu pitaco é sobre uma coisa"
     }
   ],
-  "links":[  
-    {  
+  "links":[
+    {
       "source":1,
       "target":0
     },
-    {  
+    {
       "source":2,
       "target":0
     },
-    {  
+    {
       "source":3,
       "target":0
     },
-    {  
+    {
       "source":4,
       "target":1
     },
-    {  
+    {
       "source":5,
       "target":1
     },
-    {  
+    {
       "source":6,
       "target":2
     }
