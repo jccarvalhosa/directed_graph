@@ -182,7 +182,7 @@ function selectableForceDirectedGraph() {
 				unselectEverything();
 			}
 
-			d3.select(this.children[0]).classed("selected", function(p) { d.previouslySelected = d.selected; return d.selected = true; });
+			d3.select($(this).children()[0]).classed("selected", function(p) { d.previouslySelected = d.selected; return d.selected = true; });
 
 			node.filter(function(d) { return d.selected; }).each(fixNode);
 			node.filter(function(d) { return !d.selected; }).each(unfixNode);
@@ -268,7 +268,7 @@ function selectableForceDirectedGraph() {
             }
 
             // always select this node
-            d3.select(this.children[0]).classed("selected", d.selected = !d.previouslySelected);
+            d3.select($(this).children[0]).classed("selected", d.selected = !d.previouslySelected);
         })
         .call(drag);
 
